@@ -260,8 +260,54 @@ function onTickLoop(){
         chatTicks = 0
     }
 
-    
 }
+
+//Basic Markov Chain Generator
+//takes a length of ouput sentence and a string (or list) to read from
+//returns a string
+function markovChainGenText(length, dataset)
+{
+    function choose(list) {
+        return list[Math.floor(Math.random()*list.length)]
+    }
+
+    var output =      [];
+    var choice_pool = [];
+    current_len =      0;
+
+    var dataset =      dataset.toString().toLowerCase();
+    var dataset = dataset.split(" ")
+    var current_word = choose(dataset);
+    output.push(current_word);
+
+    while (current_len < length)
+    {
+        //Start adding words
+        for (var word = 0; word < dataset.length; word++)
+        {
+            //add to the choice pool
+            if (dataset[word] == current_word)
+            {
+                try
+                {
+                    choice_pool.push(dataset[word+1]);
+                }
+                catch
+                {
+                    choice_pool.push(choose(dataset));
+                }
+            }
+
+        }
+        output.push(choose(choice_pool)); //choose a word
+
+        var choice_pool =  [];
+        var current_word = output.slice(-1);
+        current_len += 1;
+    }
+
+    return output.join(" ")
+};
 
 function chatoption(sel, vser, xtra, masterOverride){
     console.log(`${vser} issued command ${sel} with ${xtra}`)
@@ -526,6 +572,12 @@ function coin(str){
             } else {
                 return false
             }
+        break;
+            
+        case 'talk':
+            bot.chat(markovChainGenText(10, chatter(vser)))
+        break;
+            
         default:
             sayDelay.push('shekels')
             break;
